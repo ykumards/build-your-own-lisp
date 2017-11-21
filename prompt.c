@@ -1,7 +1,29 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+#ifdef _WIN32
+#include <string.h>
+
+static char buffer[2048];
+
+char* readline(char* prompt) {
+  fputs(prompt, stdout);
+  fgets(buffer, 2048, stdin);
+  char* cpy = malloc(strlen(buffer)+1);
+  strcpy(cpy, buffer);
+  cpy[strlen(cpy)-1] = '\0';
+  return cpy;
+}
+
+void add_history(char* unused){}
+
+#else
+#include <editline/readline.h>
+//#include <editline/history.h>
+#endif
 
 /* Declare a buffer for user input of size 2048 */
-static char input[2048];
+//static char input[2048];
 
 int main(int argc, char** argv) {
   
@@ -12,13 +34,13 @@ int main(int argc, char** argv) {
   /* In a never ending loop */
   while (1) {
     /* output the prompt */
-    fputs("lispy> ", stdout);
-
-    /* Read a line of user input of maximum size 2048 */
-    fgets(input, 2048, stdin);
+    char* input = readline("lispy> ");
+    add_history(input);
 
     /* Echo input back to user */
-    printf("No you're a %s", input);
+    printf("No you're a %s\n", input);
+
+    free(input);
   }
   return 0;
 }
